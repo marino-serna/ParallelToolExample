@@ -1,6 +1,6 @@
 
   DROP TABLE IF EXISTS schema1.table1;
-  CREATE TABLE schema1.table1(
+  CREATE TABLE IF NOT EXISTS schema1.table1(
   key String,
   field1 Integer,
   field2 String,
@@ -13,7 +13,7 @@
 
 
 DROP TABLE IF EXISTS schema1.table2;
-  CREATE TABLE schema1.table2(
+  CREATE TABLE IF NOT EXISTS schema1.table2(
   key String,
   field1 Integer,
   field2 String,

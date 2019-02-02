@@ -4,7 +4,7 @@ import com.github.marino_serna.parallel_tool.ParallelTool
 import com.github.marino_serna.parallel_tool_example.commons.Utils
 import org.apache.spark.sql.DataFrame
 
-class TestClassWithLogic3(utils: Utils, parallelTool:ParallelTool) {
+class TestFullExecutionClassWithLogic3(utils: Utils, parallelTool:ParallelTool) {
 
   def startTest():List[DataFrame]={
     val functionsToExecute =
