@@ -10,6 +10,8 @@ trait Commons{
   val pathSchema = "gs://" //Example for GCP (google cloud)
   val pathSchemaTest = "src/test/resources/"
 
+  val environmentVariableForDB = "${variableDefinedInTheClusterWithThePathForThisEnvironment}"
+
   //characters that are regular expressions, like {}() must be escaped: "\\{" or """\{"""
   val invalidTableNameCharacters:List[String] =  " "::","::";"::"\\{"::"\\}"::"\\("::"\\)"::"\n"::"\t"::"="::Nil
   val unwantedTableNameCharacters:List[String] = "'" :: "|" :: Nil

@@ -25,7 +25,6 @@ class ClassWithLogic1(utils:Utils) extends Commons{
     * @return DataFrame with the result of the method
     */
   @Store(temporal = true)
-  @PriorityExecution(expectedExecutionTime = 200)
   def processRawTableTemporalOutput(parallelTool:ParallelTool):DataFrame ={
     val dfTable1 = utils.storage.read(schema1,table1)
     utils.wasteTime(dfTable1,dfTable1)
@@ -52,7 +51,6 @@ class ClassWithLogic1(utils:Utils) extends Commons{
     * @return DataFrame with the result of the method
     */
   @Store(schema = schema1, name = table3, partitions = Array("field2"))
-  @PriorityExecution(expectedExecutionTime = 192)
   def processRawTableOutputToTable(parallelTool:ParallelTool):DataFrame ={
     val dfTable2 = utils.storage.read(schema1,table2)
     utils.wasteTime(dfTable2,dfTable2)
@@ -65,7 +63,7 @@ class ClassWithLogic1(utils:Utils) extends Commons{
     * It is important to add an annotation of "DependenceOf" with the name of the method.
     * That annotation will avoid the application to get block waiting for a method that is not running,
     * especially important if the number of methods is high.
-    * This will be use with the annotation PriorityExecution to calculate the critical path of the application
+    * The critical path of the application will be calculated base on last execution times.
     *
     * @param parallelTool Allows the method to access the output of other methods already executed.
     * @return DataFrame with the result of the method

@@ -1,6 +1,6 @@
 package com.github.marino_serna.parallel_tool_example
 
-import com.github.marino_serna.parallel_tool.{ParallelTool, PriorityExecution, Store, _}
+import com.github.marino_serna.parallel_tool.{ParallelTool, Store, _}
 import com.github.marino_serna.parallel_tool_example.commons.{Commons, Utils}
 import org.apache.spark.sql.DataFrame
 
@@ -19,7 +19,6 @@ class ClassWithLogic2(utils:Utils) extends Commons {
     */
   @DependenceOf(dependencies = Array("processRawTableTemporalOutput", "processRawTableOutputToTable"))
   @Store(schema = schema2, name = table5)
-  @PriorityExecution(expectedExecutionTime = 2936)
   def processOutputFromOtherMethodsInADifferentClass(parallelTool:ParallelTool):DataFrame ={
     val classWithLogic1 = new ClassWithLogic1(utils)
     val dfTableTemporal = parallelTool.get("processRawTableTemporalOutput", classWithLogic1)

@@ -23,28 +23,33 @@ class BaseTesting extends FunSuite with BeforeAndAfterAll with Commons{
     System.setProperty("spark.master", "local")
     System.setProperty("org.apache.parquet.handlers", "java.util.logging.ConsoleHandler")
     System.setProperty("java.util.logging.ConsoleHandler.level", "SEVERE")
-
-    prepareDataBase(utils)
+    utils.spark.conf.set("spark.sql.shuffle.partitions",  1) //ONLY use for unit testing. Helps speeding up the test with small data
   }
 
-  def prepareDataBase(utils: Utils):Unit = {
-    val listOfSchemas:List[String] = sqlCreateDataBase()
-    listOfSchemas.par.map(schemaToCreate=>utils.spark.sql(schemaToCreate))
-
-
-    val createsAndDropsTables = scala.io.Source.fromFile(s"src/test/resources/create/create_tables.sql").mkString
-      .replaceAllLiterally("${variableDefinedInTheClusterWithThePathForThisEnvironment}",pathSchemaTest)
+  def parseSQLFile(pathFile:String, locationKey:String, locationValue:String):List[String] = {
+    scala.io.Source.fromFile(pathFile).mkString
+      .replaceAllLiterally(locationKey,locationValue)
       .replace("';'","'#semicolon#'")
+      .replace(";\"","#semicolon1#")
+      .replace(";'","#semicolon2#")
       .split(";")
+      .map(_.replace("#semicolon2#",";'"))
+      .map(_.replace("#semicolon1#",";\""))
       .map(_.replace("#semicolon#",";")).toList
+  }
 
+  def prepareDataBase(dataBaseName:String):Unit = {
+
+    val createAndDropsDataBases = parseSQLFile(s"src/test/resources/create/$dataBaseName/create_databases.sql",environmentVariableForDB,pathSchemaTest)
+
+    // Drop databases is nor required but helps ensuring that every test is not affected by tests from previous executions.
+    createAndDropsDataBases.filter(_ . contains("DROP DATABASE")).par.map(utils.spark.sql)
+
+    createAndDropsDataBases.filter(_ . contains("CREATE DATABASE")).par.map(utils.spark.sql)
+
+    val createsAndDropsTables = parseSQLFile(s"src/test/resources/create/$dataBaseName/create_tables.sql",environmentVariableForDB, pathSchemaTest)
+
+    createsAndDropsTables.filter(_ . contains("CREATE EXTERNAL TABLE")).par.map(utils.spark.sql)
     createsAndDropsTables.filter(_ . contains("CREATE TABLE")).par.map(utils.spark.sql)
   }
-
-  def sqlCreateDataBase():List[String] = {
-    s"""CREATE DATABASE IF NOT EXISTS $schema1""" ::
-      s"""CREATE DATABASE IF NOT EXISTS $schema2""" ::
-      Nil
-  }
-
 }

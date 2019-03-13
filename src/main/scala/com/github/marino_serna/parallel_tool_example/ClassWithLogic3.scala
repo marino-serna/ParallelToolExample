@@ -25,7 +25,6 @@ class ClassWithLogic3(utils:Utils) extends Commons{
     */
   @DependenceOf(dependencies = Array("processRawTableTemporalOutput", "processRawTableOutputToTable"))
   @Store(schema = schema2, name = table6)
-  @PriorityExecution(expectedExecutionTime = 5066)
   def processParallelWithoutDependencies(parallelTool:ParallelTool):DataFrame ={
     val classWithLogic1 = new ClassWithLogic1(utils)
     val dfTable1:DataFrame = utils.storage.read(schema1,table1)

@@ -42,7 +42,7 @@ object ParallelToolExampleMain extends Commons{
     */
   def fullExecution(utils:Utils):ParallelTool = {
     logger.info(s" Full execution requested")
-    val parallelTool = new ParallelTool(utils.spark, utils.storage)
+    val parallelTool = new ParallelTool(utils.spark, utils.storage, storePrioritySchema=schema1, storePriorityTable = "priority_example")
 
     val classWithLogic1 = new ClassWithLogic1(utils)
     val classWithLogic2 = new ClassWithLogic2(utils)

@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
-  "com.github.marino-serna" % "parallel-tool" % "1.0.1-01",
+  "com.github.marino-serna" % "parallel-tool" % "1.0.1-02",
   "org.scalatest" %% "scalatest" % "2.2.2" % Test
 )
 

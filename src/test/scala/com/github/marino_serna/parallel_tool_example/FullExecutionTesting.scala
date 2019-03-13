@@ -28,6 +28,8 @@ class FullExecutionTesting  extends BaseTesting {
   test("Full execution") {
     import utils.spark.implicits._
 
+    prepareDataBase("project1")
+
     val listOfTestResults = testClassWithLogic1.startTest() :::
       testClassWithLogic2.startTest() :::
       testClassWithLogic3.startTest() :::
