@@ -2,22 +2,24 @@ package com.github.marino_serna.parallel_tool_example
 
 import com.github.marino_serna.parallel_tool.ParallelTool
 import com.github.marino_serna.parallel_tool_example.commons.Utils
-import org.apache.spark.sql.DataFrame
+import com.github.marino_serna.parallel_tool_example.commons.UtilsTest.TestResult
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 class TestFullExecutionClassWithLogic2(utils: Utils, parallelTool:ParallelTool) {
+  import utils.spark.implicits._
 
   val classWithLogic1 = new ClassWithLogic1(utils)
   val classWithLogic2 = new ClassWithLogic2(utils)
 
-  def startTest():List[DataFrame]={
+  def startTest():List[Dataset[TestResult]]={
     val functionsToExecute =
       ("testProcessOutputFromOtherMethodsInADifferentClass", Nil) ::
         Nil
 
-    parallelTool.parallelNoDependencies(this, functionsToExecute)
+    parallelTool.parallelNoDependencies(this, functionsToExecute).map(_.as[TestResult])
   }
 
-  def testProcessOutputFromOtherMethodsInADifferentClass(): DataFrame = {
+  def testProcessOutputFromOtherMethodsInADifferentClass(): Dataset[TestResult] = {
     import utils._
     import utils.spark.implicits._
 
@@ -30,7 +32,7 @@ class TestFullExecutionClassWithLogic2(utils: Utils, parallelTool:ParallelTool) 
 
     ((s"testProcessOutputFromOtherMethodsInADifferentClass => Counts: $countInput == $countOutput",
       countInput == countOutput) ::
-      Nil).toDF(errorHeaders: _*)
+      Nil).toDF(errorHeaders: _*).as[TestResult]
   }
 
 }

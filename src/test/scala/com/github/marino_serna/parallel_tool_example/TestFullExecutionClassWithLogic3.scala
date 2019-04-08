@@ -2,19 +2,21 @@ package com.github.marino_serna.parallel_tool_example
 
 import com.github.marino_serna.parallel_tool.ParallelTool
 import com.github.marino_serna.parallel_tool_example.commons.Utils
-import org.apache.spark.sql.DataFrame
+import com.github.marino_serna.parallel_tool_example.commons.UtilsTest.TestResult
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 class TestFullExecutionClassWithLogic3(utils: Utils, parallelTool:ParallelTool) {
+  import utils.spark.implicits._
 
-  def startTest():List[DataFrame]={
+  def startTest():List[Dataset[TestResult]]={
     val functionsToExecute =
           ("testProcessParallelWithoutDependencies", Nil) ::
       Nil
 
-        parallelTool.parallelNoDependencies(this, functionsToExecute)
+        parallelTool.parallelNoDependencies(this, functionsToExecute).map(_.as[TestResult])
   }
 
-  def testProcessParallelWithoutDependencies(): DataFrame = {
+  def testProcessParallelWithoutDependencies(): Dataset[TestResult] = {
     import utils._
     import utils.spark.implicits._
 
@@ -32,6 +34,6 @@ class TestFullExecutionClassWithLogic3(utils: Utils, parallelTool:ParallelTool) 
 
     ((s"processParallelWithoutDependencies => Counts: $countInput == $countOutput && $countInput3  == $countOutput",
       countInput == countOutput && countInput3  == countOutput) ::
-      Nil).toDF(errorHeaders: _*)
+      Nil).toDF(errorHeaders: _*).as[TestResult]
   }
 }

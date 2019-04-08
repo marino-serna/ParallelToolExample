@@ -1,6 +1,7 @@
 package com.github.marino_serna.parallel_tool_example.commons
 
 import com.github.marino_serna.parallel_tool.DataBaseStorage
+import com.github.marino_serna.parallel_tool_example.commons.Schema1Tables._
 import org.apache.log4j.Logger
 import org.apache.spark.sql._
 
@@ -81,6 +82,27 @@ class Utils(pathSchemaToUse:String) extends Commons {
           ,Seq("key"),"inner")
 
       wasteTime(dfRes,df2,duration-1)
+    }
+  }
+
+  /**
+    * This method will consume some time, we use this instead of implementing real logic for the examples.
+    * @param ds1 First DataSet
+    * @param ds2 Second DataSet
+    * @param duration number of times the function will be executed and consuming time
+    * @return
+    */
+  def wasteTimeTyped(ds1:Dataset[Table1], ds2:Dataset[Table3], duration:Int=3):Dataset[Table1] ={
+    duration match {
+      case 0 => ds1
+      case _ =>
+        val dfRes = ds1
+          .joinWith(ds2,ds1("key") === ds2("key"),"inner")
+          .map{case (table1,table3) =>
+            Table1(table1.key,table3.field1,table1.field2,table3.field3,table1.field4, table3.field5)}
+        dfRes.show()
+
+        wasteTimeTyped(dfRes,ds2,duration-1)
     }
   }
 }

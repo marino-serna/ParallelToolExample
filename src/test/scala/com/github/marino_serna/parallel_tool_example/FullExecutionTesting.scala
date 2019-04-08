@@ -1,7 +1,8 @@
 package com.github.marino_serna.parallel_tool_example
 
-import com.github.marino_serna.parallel_tool_example.commons.{BaseTesting}
-import org.apache.spark.sql.DataFrame
+import com.github.marino_serna.parallel_tool_example.commons.BaseTesting
+import com.github.marino_serna.parallel_tool_example.commons.UtilsTest.TestResult
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 class FullExecutionTesting  extends BaseTesting {
 
@@ -35,19 +36,19 @@ class FullExecutionTesting  extends BaseTesting {
       testClassWithLogic3.startTest() :::
       Nil
 
-    val testingResults:DataFrame = listOfTestResults
-      .foldLeft((("",true)::Nil).toDF(errorHeaders:_*))((current, previous) => previous.union(current)).cache()
+    val testingResults:Dataset[TestResult] = listOfTestResults
+      .foldLeft((("",true)::Nil).toDF(errorHeaders: _*).as[TestResult])((current, previous) => previous.union(current)).cache()
 
     val totalTest = testingResults.count()
     val testWitIssues = testingResults.filter($"result" === false)
     val totalIssueTest = testWitIssues.count()
 
-    val testReport = testingResults.orderBy($"result").collect().map(testingEntry =>
-      if (testingEntry.getBoolean(1)) {
-        s"SUCCESS: ${testingEntry.getString(0)}\n"
+    val testReport = testingResults.orderBy($"result").map(testingEntry =>
+      if (testingEntry.result) {
+        s"SUCCESS: ${testingEntry.message}\n"
       } else {
-        s"FAIL: ${testingEntry.getString(0)}\n"
-      }).foldLeft("")((current,accumulated) => s"$accumulated$current")
+        s"FAIL: ${testingEntry.message}\n"
+      }).collect().foldLeft("")((current,accumulated) => s"$accumulated$current")
 
     logger.info(s"Test all - Regular Flow" )
     logger.info(testReport)

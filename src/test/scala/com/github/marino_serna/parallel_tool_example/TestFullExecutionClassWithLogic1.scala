@@ -2,13 +2,16 @@ package com.github.marino_serna.parallel_tool_example
 
 import com.github.marino_serna.parallel_tool.ParallelTool
 import com.github.marino_serna.parallel_tool_example.commons.Utils
-import org.apache.spark.sql.DataFrame
+import com.github.marino_serna.parallel_tool_example.commons.UtilsTest.TestResult
+import org.apache.spark.sql.Dataset
+
 
 class TestFullExecutionClassWithLogic1(utils: Utils, parallelTool:ParallelTool) {
+  import utils.spark.implicits._
 
   val classWithLogic1 = new ClassWithLogic1(utils)
 
-  def startTest():List[DataFrame]={
+  def startTest():List[Dataset[TestResult]]={
     println("In startTest")
     val functionsToExecute =
       ("testProcessRawTableTemporalOutput", Nil) ::
@@ -16,10 +19,10 @@ class TestFullExecutionClassWithLogic1(utils: Utils, parallelTool:ParallelTool) 
       ("testProcessOutputFromOtherMethods", Nil) ::
         Nil
 
-    parallelTool.parallelNoDependencies(this, functionsToExecute)
+    parallelTool.parallelNoDependencies(this, functionsToExecute).map(_.as[TestResult])
   }
 
-  def testProcessRawTableTemporalOutput(): DataFrame = {
+  def testProcessRawTableTemporalOutput(): Dataset[TestResult] = {
     import utils._
     import utils.spark.implicits._
 
@@ -32,10 +35,10 @@ class TestFullExecutionClassWithLogic1(utils: Utils, parallelTool:ParallelTool) 
 
     ((s"processRawTableTemporalOutput => Counts: $countInput == $countOutput",
       countInput == countOutput) ::
-      Nil).toDF(errorHeaders: _*)
+      Nil).toDF(errorHeaders: _*).as[TestResult]
   }
 
-  def testProcessRawTableOutputToTable(): DataFrame = {
+  def testProcessRawTableOutputToTable(): Dataset[TestResult] = {
     import utils._
     import utils.spark.implicits._
 
@@ -48,10 +51,10 @@ class TestFullExecutionClassWithLogic1(utils: Utils, parallelTool:ParallelTool) 
 
     ((s"processRawTableOutputToTable => Counts: $countInput == $countOutput",
       countInput == countOutput) ::
-      Nil).toDF(errorHeaders: _*)
+      Nil).toDF(errorHeaders: _*).as[TestResult]
   }
 
-  def testProcessOutputFromOtherMethods(): DataFrame = {
+  def testProcessOutputFromOtherMethods(): Dataset[TestResult] = {
     import utils._
     import utils.spark.implicits._
 
@@ -64,7 +67,7 @@ class TestFullExecutionClassWithLogic1(utils: Utils, parallelTool:ParallelTool) 
 
     ((s"processOutputFromOtherMethods => Counts: $countInput == $countOutput",
       countInput == countOutput) ::
-      Nil).toDF(errorHeaders: _*)
+      Nil).toDF(errorHeaders: _*).as[TestResult]
   }
 
 }

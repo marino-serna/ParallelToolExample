@@ -2,10 +2,12 @@ package com.github.marino_serna.parallel_tool_example
 
 import com.github.marino_serna.parallel_tool._
 import com.github.marino_serna.parallel_tool_example.commons.{Commons, Utils}
+import com.github.marino_serna.parallel_tool_example.commons.Schema1Tables._
 import org.apache.spark.sql._
 
 class ClassWithLogic1(utils:Utils) extends Commons{
-
+  import utils._
+  import spark.implicits._
   /**
     * Every method like “(parallelTool:ParallelTool):DataFrame” in a class that is executed will be executed
     * any other method will be ignored.
@@ -51,9 +53,8 @@ class ClassWithLogic1(utils:Utils) extends Commons{
     * @return DataFrame with the result of the method
     */
   @Store(schema = schema1, name = table3, partitions = Array("field2"))
-  def processRawTableOutputToTable(parallelTool:ParallelTool):DataFrame ={
-    val dfTable2 = utils.storage.read(schema1,table2)
-    utils.wasteTime(dfTable2,dfTable2)
+  def processRawTableOutputToTable(parallelTool:ParallelTool):Dataset[Table2] ={
+    utils.storage.read(schema1,table2).as[Table2]
   }
 
   /**
@@ -71,10 +72,10 @@ class ClassWithLogic1(utils:Utils) extends Commons{
   @DependenceOf(dependencies = Array("processRawTableTemporalOutput", "processRawTableOutputToTable"))
   @Store(schema = schema1, name = table4)
   @PriorityExecution(expectedExecutionTime = 2914)
-  def processOutputFromOtherMethods(parallelTool:ParallelTool):DataFrame ={
-    val dfTableTemporal = parallelTool.get("processRawTableTemporalOutput", this)
-    val dfTable3 = parallelTool.get("processRawTableOutputToTable", this)
-    utils.wasteTime(dfTableTemporal,dfTable3)
+  def processOutputFromOtherMethods(parallelTool:ParallelTool):Dataset[Table1] ={
+    val dsTableTemporal = parallelTool.get("processRawTableTemporalOutput", this).as[Table1]
+    val dsTable3 = parallelTool.get("processRawTableOutputToTable", this).as[Table3]
+    utils.wasteTimeTyped(dsTableTemporal,dsTable3)
   }
 
 }
